@@ -189,12 +189,12 @@ body {
 
   .lightbox-count {
     text-align: center;
-    color: #fff;
+    color: $strokeLightGray;
     padding: 5px;
     font-size: 1rem;
 
     .count-span-text {
-      color: $accentColor;
+      color: #fff;
       font-size: 1.1rem;
       font-weight: 900;
     }
@@ -239,19 +239,17 @@ body {
 }
 
 .lightbox-thumbnails {
+  position: relative;
   align-items: center;
   justify-content: center;
-  padding: 15px;
-  background-color: $darkGreyColor;
-  border: 1px solid $strokeLightGray;
-  border-top: 1px solid $darkGreyColor;
-  z-index: 999;
-  margin-top: -1px;
+  padding: 10px;
+  margin: 0.5rem 1rem 0 1rem;
   display: none;
   overflow: hidden;
   min-height: 120px;
   overflow-x: auto;
-  max-width: 550px;
+  max-width: 530px;
+  width: 100%;
 
   .lightbox-thumbnails-list {
     list-style: none;
@@ -260,7 +258,7 @@ body {
     align-items: center;
     justify-content: flex-start;
     white-space: nowrap;
-    gap: 15px;
+    gap: 10px;
   }
 
   .lightbox-thumbnails-el {
@@ -268,6 +266,8 @@ body {
     border-radius: 3px;
     flex-shrink: 0;
     border: 1px solid #b8b3b3;
+    margin-right: 10px;
+    background-color: red;
 
     img {
       width: 90px;
@@ -291,6 +291,18 @@ body {
       box-shadow: 0 0 0 3px #fff inset;
       z-index: 1;
     }
+  }
+
+  &::-webkit-scrollbar {
+    width: auto;
+    background: $darkGreyColor;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #fff;
+    border-radius: 2px;
   }
 }
 
