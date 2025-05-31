@@ -2,45 +2,46 @@ function lightbox(opts) {
   const defaultOptions = {
     showCount: true,
     showText: true,
-    closeOnBg: false,
+    showPrevNext: true,
     showThumbnails: true,
   };
+
   const options = { ...defaultOptions, ...opts };
 
   let links = [];
   let currentIndex = 0;
   let DOM = getElementsReference();
+
   bindEvents();
 
   function createLightbox() {
     const lightbox = document.createElement("div");
     lightbox.classList.add("lightbox");
     lightbox.innerHTML = `
-            <div class="lightbox-box">
-                <div class="lightbox-count">
-                </div>
-                <div class="lightbox-img-cnt">
-                    <button class="lightbox-prev">
-                 <i class='bx bxs-left-arrow' ></i>
+     <div class="lightbox-box">
+                  <div class="lightbox-count">
+                  </div>
+                  <div class="lightbox-img-cnt">
+                      <button class="lightbox-prev">
+                   <i class='bx bxs-left-arrow' ></i>
+                      </button>
+  
+                     <button class="lightbox-next">
+                   <i class='bx bxs-right-arrow'></i>
                     </button>
-
-                   <button class="lightbox-next">
-                 <i class='bx bxs-right-arrow'></i>
+  
+                      <img src="" class="lightbox-img" alt="">
+                  </div>
+                  <div class="lightbox-text">
+                  </div>          
+              </div>
+               <button class="lightbox-close">
+                     <i class='bx  bx-x' ></i> 
                   </button>
-
-                    <img src="" class="lightbox-img" alt="">
-                </div>
-                <div class="lightbox-text">
-                </div>          
-            </div>
-             <button class="lightbox-close">
-                   <i class='bx  bx-x' ></i> 
-                </button>
-             <div class="lightbox-thumbnails">
-                <ul class="lightbox-thumbnails-list"></ul>
-            </div>
-        `;
-
+               <div class="lightbox-thumbnails">
+                  <ul class="lightbox-thumbnails-list"></ul>
+              </div>
+    `;
     return lightbox;
   }
 
@@ -60,16 +61,11 @@ function lightbox(opts) {
   }
 
   function bindEvents() {
-    DOM.close.addEventListener("click", () => {
-      hideLightbox();
-    });
+    DOM.close.addEventListener("click", () => hideLightbox());
 
-    DOM.next.addEventListener("click", () => {
-      nextImage();
-    });
-    DOM.prev.addEventListener("click", () => {
-      prevImage();
-    });
+    DOM.prev.addEventListener("click", () => prevImage());
+
+    DOM.next.addEventListener("click", () => nextImage());
 
     document.addEventListener("keyup", (e) => {
       if (e.key === "ArrowRight") nextImage();
@@ -77,19 +73,14 @@ function lightbox(opts) {
       if (e.key === "Escape") hideLightbox();
     });
 
-    if (options.closeOnBg) {
-      DOM.lightbox.addEventListener("click", () => {
-        hideLightbox();
-      });
-      DOM.imgCnt.addEventListener("click", (e) => e.stopPropagation());
-    }
-
     DOM.img.addEventListener("load", () => {
       hideLoading();
+      hideError();
     });
 
     DOM.img.addEventListener("error", () => {
       hideLoading();
+      showError();
     });
 
     DOM.thumbnails.addEventListener("click", (e) => {
@@ -97,10 +88,7 @@ function lightbox(opts) {
       if (el) {
         e.preventDefault();
         currentIndex = [...DOM.thumbnailsList.children].indexOf(el);
-        showImage(
-          el.href,
-          el.getAttribute("data-text") ? el.getAttribute("data-text") : " "
-        );
+        showImage(el.href, el.dataset.text ? el.dataset.text : "");
       }
     });
   }
@@ -147,8 +135,31 @@ function lightbox(opts) {
   }
 
   function showCount() {
-    DOM.count.innerHTML = `${currentIndex + 1} / ${links.length}`;
     DOM.count.style.display = "block";
+    DOM.count.textContent = `${currentIndex + 1} / ${links.length}`;
+  }
+
+  function hideCount() {
+    DOM.count.style.display = "none";
+  }
+
+  function hideText() {
+    DOM.text.style.display = "none";
+  }
+
+  function showText(text) {
+    DOM.text.innerHTML = text;
+    DOM.text.style.display = "block";
+  }
+
+  function showPrevNext() {
+    DOM.next.style.display = "block";
+    DOM.prev.style.display = "block";
+  }
+
+  function hidePrevNext() {
+    DOM.next.style.display = "none";
+    DOM.prev.style.display = "none";
   }
 
   function addLinks(selector) {
@@ -185,60 +196,6 @@ function lightbox(opts) {
     return links.indexOf(el);
   }
 
-  function removeLinks(selector) {
-    const links = document.querySelectorAll(selector);
-
-    links.forEach((el) => {
-      if (el.tagName === "A") {
-        links = links.filter((linkToImg) => el !== linkToImg);
-      }
-    });
-
-    makeThumbnails();
-
-    if (links.length > 1) {
-      if (options.showCount) showCount();
-      showPrevNext();
-      if (options.showThumbnails) showThumbnails();
-    } else {
-      hideCount();
-      hidePrevNext();
-      if (options.showThumbnails) hideThumbnails();
-    }
-  }
-
-  function hidePrevNext() {
-    DOM.next.style.display = "none";
-    DOM.prev.style.display = "none";
-  }
-  function showPrevNext() {
-    DOM.next.style.display = "block";
-    DOM.prev.style.display = "block";
-  }
-
-  function hideCount() {
-    DOM.count.style.display = "none";
-  }
-  function hideText() {
-    DOM.text.style.display = "none";
-  }
-
-  function showText(text) {
-    DOM.text.innerHTML = text;
-    DOM.text.style.display = "block";
-  }
-  function showLoading() {
-    const div = document.createElement("div");
-    div.classList.add("lightbox-img-loading");
-    DOM.imgCnt.append(div);
-  }
-
-  function hideLoading() {
-    if (DOM.imgCnt.querySelector(".lightbox-img-loading")) {
-      DOM.imgCnt.querySelector(".lightbox-img-loading").remove();
-    }
-  }
-
   function makeThumbnails() {
     DOM.thumbnails.style.display = "flex";
     DOM.thumbnailsList.innerHTML = "";
@@ -253,6 +210,7 @@ function lightbox(opts) {
       DOM.thumbnailsList.append(thumb);
     });
   }
+
   function hideThumbnails() {
     DOM.thumbnails.style.display = "none";
     DOM.lightbox.classList.remove("lightbox--gallery");
@@ -272,11 +230,34 @@ function lightbox(opts) {
     thumbnails[currentIndex].classList.add("is-active");
   }
 
+  function showLoading() {
+    const div = document.createElement("div");
+    div.classList.add("lightbox-img-loading");
+    DOM.imgCnt.append(div);
+  }
+
+  function hideLoading() {
+    if (DOM.imgCnt.querySelector(".lightbox-img-loading")) {
+      DOM.imgCnt.querySelector(".lightbox-img-loading").remove();
+    }
+  }
+  function showError() {
+    const div = document.createElement("div");
+    div.classList.add("lightbox-img-error");
+    div.innerHTML = "Błąd wczytywania grafiki";
+    DOM.imgCnt.append(div);
+  }
+
+  function hideError() {
+    if (DOM.imgCnt.querySelector(".lightbox-img-error")) {
+      DOM.imgCnt.querySelector(".lightbox-img-error").remove();
+    }
+  }
+
   return {
     showCount,
     hideCount,
     addLinks,
-    removeLinks,
     hidePrevNext,
     showPrevNext,
     hideText,
@@ -287,10 +268,10 @@ function lightbox(opts) {
 }
 
 const lightbox2 = lightbox({
-  showCount: true,
   showText: true,
-  closeOnBg: false,
+  showCount: true,
   showThumbnails: true,
+  showPrevNext: true,
 });
 
 lightbox2.addLinks(".gallery-el");
