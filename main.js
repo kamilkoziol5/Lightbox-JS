@@ -136,7 +136,9 @@ function lightbox(opts) {
 
   function showCount() {
     DOM.count.style.display = "block";
-    DOM.count.textContent = `${currentIndex + 1} / ${links.length}`;
+    DOM.count.innerHTML = `<span class="count-span-text">${
+      currentIndex + 1
+    }</span> / ${links.length}`;
   }
 
   function hideCount() {
